@@ -52,9 +52,9 @@ The service can be accessed by a client through HTTP requests as follows :
 Running unit tests
 ------------------
 The tests are defined in tests.py files.
-They can be launched by running the following command :
+They can be launched from the root directory, by running the following command :
 
-    python -m unittest
+    python -m unittest discover -s flaskapp/tests
     
 For more documentation about running tests, please refer to the official documentation : https://docs.python.org/3/library/unittest.html
 
