@@ -34,8 +34,9 @@ You should work within the backend directory.
 
 To run the Back-End, you need to run the following command :
 
-    export FLASK_APP=pdfmetadatareader
-    python -m flask
+    export FLASK_APP=flaskapp/app
+    export FLASK_ENV=development
+    flask run
     
 Sending an HTTP request locally to the Back-End
 -----------------------------------------------
@@ -43,12 +44,20 @@ Considering the Flask application is running and accessible through the followin
 
     http://127.0.0.1:5000/
     
-And given the PDF of which extracting its metadata is accessible through the following path : ~/pdf_name.pdf
+And given the PDF of which extracting metadata is accessible through the client working directory, as "PDF_FILE.pdf" ;
 
-The service can be accessed by a client through HTTP requests as follows :
+The service can be accessed by a client through HTTP requests as follows.
 
-    curl http://127.0.0.1:5000/ -o PDFPATH
-    
+Posting the PDF towards the service file system:
+
+    curl http://127.0.0.1:5000/extract_pdf_metadata/ -d -o PDF_FILE.pdf
+
+*Note : the PDF file will be stored into the flaskapp/resources directory !*
+
+Getting the PDF metadata after having sent it:
+
+    curl http://127.0.0.1:5000/extract_pdf_metadata/?pdf_name=PDF_FILE.pdf
+
 Running unit tests
 ------------------
 The tests are defined in tests.py files.
