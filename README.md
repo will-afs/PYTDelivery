@@ -34,7 +34,8 @@ You should work within the backend directory.
 
 To run the Back-End, you need to run the following command :
 
-    export FLASK_APP=pdfmetadatareader
+    export FLASK_APP=flaskapp/app
+    export FLASK_ENV=development
     python -m flask
     
 Sending an HTTP request locally to the Back-End
