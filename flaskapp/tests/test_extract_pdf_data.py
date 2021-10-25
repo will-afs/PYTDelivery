@@ -20,12 +20,12 @@ class TestExtractPDFData(unittest.TestCase):
 
     def test_extract_pdf_metadata_file_success(self):
         reference_metadata = {
-                                'Author': b'AURORE',
-                                'CreationDate': b"D:20200325185329+01'00'",
-                                'Creator': b'Microsoft\xae Office Word 2007',
-                                'ModDate': b"D:20210311153835+01'00'",
-                                'Producer': b'Microsoft\xae Office Word 2007',
-                                'Title': b'DOSSIER COUP DE POUCE 2020'
+                                'Author': 'AURORE',
+                                'CreationDate': "D:20200325185329+01'00'",
+                                'Creator': 'Microsoft Office Word 2007',
+                                'ModDate': "D:20210311153835+01'00'",
+                                'Producer': 'Microsoft Office Word 2007',
+                                'Title': 'DOSSIER COUP DE POUCE 2020'
                             }
         extracted_metadata = extract_pdf_metadata(DATA_FILE_PATH + PDF_DATA_FILE_NAME)
         self.assertEqual(extracted_metadata, reference_metadata)
