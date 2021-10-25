@@ -46,14 +46,18 @@ Considering the Flask application is running and accessible through the followin
     
 And given the PDF of which extracting metadata is accessible through the client working directory, as "PDF_FILE.pdf" ;
 
-The service can be accessed by a client through HTTP requests as follows :
-* Posting the PDF towards the service file system:
+The service can be accessed by a client through HTTP requests as follows.
+
+Posting the PDF towards the service file system:
 
     curl http://127.0.0.1:5000/extract_pdf_metadata/ -d -o PDF_FILE.pdf
-    
-* Getting the PDF metadata after having sent it:
+
+*Note : the PDF file will be stored into the flaskapp/resources directory !*
+
+Getting the PDF metadata after having sent it:
+
     curl http://127.0.0.1:5000/extract_pdf_metadata/?pdf_name=PDF_FILE.pdf
-    
+
 Running unit tests
 ------------------
 The tests are defined in tests.py files.
