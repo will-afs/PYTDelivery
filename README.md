@@ -44,11 +44,15 @@ Considering the Flask application is running and accessible through the followin
 
     http://127.0.0.1:5000/
     
-And given the PDF of which extracting its metadata is accessible through the following path : ~/pdf_name.pdf
+And given the PDF of which extracting metadata is accessible through the client working directory, as "PDF_FILE.pdf" ;
 
 The service can be accessed by a client through HTTP requests as follows :
+* Posting the PDF towards the service file system:
 
-    curl http://127.0.0.1:5000/ -o PDFPATH
+    curl http://127.0.0.1:5000/extract_pdf_metadata/ -d -o PDF_FILE.pdf
+    
+* Getting the PDF metadata after having sent it:
+    curl http://127.0.0.1:5000/extract_pdf_metadata/?pdf_name=PDF_FILE.pdf
     
 Running unit tests
 ------------------
