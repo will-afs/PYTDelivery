@@ -5,7 +5,7 @@ import configparser, json
 
 
 config = configparser.ConfigParser()
-config.read('./flaskapp/tests/test_extract_pdf_data.cfg')
+config.read('./tests/test_extract_pdf_data.cfg')
 
 DATA_FILE_PATH = config['PATHS']['DATA_FILE_PATH']
 NOT_EXISTING_DATA_FILE_NAME = config['PATHS']['NOT_EXISTING_DATA_FILE_NAME']
