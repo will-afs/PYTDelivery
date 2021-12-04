@@ -36,6 +36,7 @@ To run the Back-End, you need to run the following command :
 
     export FLASK_APP=flaskapp
     export FLASK_ENV=development
+    flask init-db
     flask run
     
 Sending an HTTP request locally to the Back-End
