@@ -3,8 +3,8 @@ PYTDelivery
 Source code of evaluation of "Python for data intensive applications" lecture at MS SIO, CentraleSupélec
 
 This project is a Flask application that :
-* provides an API that reads an uploaded pdf
-* extract its metadata
+* provides an API to import a pdf from a URI
+* extract its metadata and content asynchronously
 * and make them available for consumption by the user
 
 Installing the project on your machine
@@ -36,6 +36,7 @@ To run the Back-End, you need to run the following command :
 
     export FLASK_APP=flaskapp
     export FLASK_ENV=development
+    flask init-db
     flask run
     
 Sending an HTTP request locally to the Back-End
@@ -57,6 +58,10 @@ Posting the PDF towards the service file system:
 Getting the PDF metadata after having sent it:
 
     curl http://127.0.0.1:5000/extract_pdf_metadata/?pdf_name=PDF_FILE.pdf
+    
+Getting the PDF content after having sent it:
+
+    curl http://127.0.0.1:5000/extract_pdf_content/?pdf_name=PDF_FILE.pdf
 
 Running unit tests
 ------------------
