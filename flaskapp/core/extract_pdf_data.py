@@ -41,6 +41,8 @@ def download_pdf(file_uri:str, directory:str='./tmp') -> str:
     """
     try:
         web_file = urllib.request.urlopen(file_uri)
+    except urllib.error.URLError:
+        raise ConnectionError('Could not find any route to access the provided URI')
     except urllib.error.HTTPError:
         raise FileNotFoundError('Could not access the provided URI')
     except ValueError:
@@ -49,6 +51,8 @@ def download_pdf(file_uri:str, directory:str='./tmp') -> str:
         file_name = file_uri.split('/')[-1]
         pdf_name = file_name.replace('.pdf', '') + '.pdf' # Delete eventual ".pdf" before adding it
         pdf_local_path = directory + '/' + pdf_name
+        if not os.path.isdir(directory):
+            raise FileNotFoundError("Directory '{}' does not exist".format(directory))
         if not os.path.isfile(pdf_local_path):
             with open(pdf_local_path, 'wb') as pdf_file:
                 pdf_file.write(web_file.read())
@@ -120,6 +124,9 @@ def extract_pdf_data(pdf_uri:str) -> List:
         }
     str: PDF content
     """
+    # If tmp directory does not exist, create it
+    if not os.path.isdir(TMP_DIRECTORY):
+        os.mkdir(TMP_DIRECTORY)
     pdf_path = download_pdf(pdf_uri, TMP_DIRECTORY)
     pdf_metadata = extract_pdf_metadata(pdf_path)
     pdf_content = extract_pdf_content(pdf_path)

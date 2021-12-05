@@ -39,7 +39,11 @@ class TestDownloadPDF(unittest.TestCase):
         # Ensure there is no file in the folder after running these tests
         clear_dir(TMP_DIRECTORY)
         return super().tearDown()
-        
+
+    def test_download_pdf_wrong_destionation_directory(self):
+        with self.assertRaises(FileNotFoundError):
+            download_pdf(PDF_URI, directory='----')
+
     def test_download_pdf_wrong_uri_format(self):
         with self.assertRaises(ValueError):
             download_pdf(WRONG_PDF_URI)
@@ -120,3 +124,12 @@ class TestExtractPDFData(unittest.TestCase):
         # Checks whether temporary PDF file has been successfuly deleted from tmp directory
         files = glob.glob(TMP_DIRECTORY + '/*')
         self.assertEqual(files, [])
+
+    def test_extract_pdf_data_tmp_dir_does_not_exist_success(self):
+        # Remove tmp directory
+        if os.path.isdir(TMP_DIRECTORY):
+            os.rmdir(TMP_DIRECTORY)
+
+        self.test_extract_pdf_data_success()
+        # Check that tmp folder has been created
+        self.assertTrue(os.path.isdir(TMP_DIRECTORY))
