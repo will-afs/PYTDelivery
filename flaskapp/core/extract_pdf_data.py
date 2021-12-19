@@ -4,111 +4,34 @@ from pdfminer.pdfdocument import PDFDocument
 from pdfminer.high_level import extract_text
 import urllib, os, glob
 from pdfminer.pdfparser import PDFSyntaxError
+from io import BytesIO
 
-TMP_DIRECTORY = './tmp'
 
-def is_pdf(file_local_path:str)->bool:
-    """Assuming the file being pointed by the URI exists, checks whether it is a PDF
-
-    Parameters:
-    file_local_path (str) : the path to access the local file
-
-    Returns:
-    bool: Whether the file is a PDF (True) or not (False)
-    """
-    is_pdf = True
-    with open(file_local_path, 'rb') as pdf_file:
-        try:
-            PDFDocument(PDFParser(pdf_file)) # Should raise a PDFSyntaxError exception if not a real PDF
-        except PDFSyntaxError:
-            is_pdf = False
-    return is_pdf
-
-def clear_dir(dir_path:str=TMP_DIRECTORY):
-    files = glob.glob(dir_path + '/*')
-    for f in files:
-        os.remove(f)
-
-def download_pdf(file_uri:str, directory:str='./tmp') -> str:
-    """Downloads a PDF acessible from a URI and stores it into the specified directory
+def get_file_object_from_uri(file_uri:str) -> BytesIO:
+    """Return a Python File Object obtained from an URI
 
     Parameters:
     file_uri (str) : the URI to access the file
-    directory (str) : the directory into which saving the file
 
     Returns:
-    str: The path to access the PDF saved locally
+    io.BytesIO: File object corresponding to the file being pointed by the URI
     """
     try:
-        web_file = urllib.request.urlopen(file_uri)
-    except urllib.error.URLError:
-        raise ConnectionError('Could not find any route to access the provided URI')
+        response = urllib.request.urlopen(file_uri)
+    # except urllib.error.URLError:
+    #     raise ConnectionError('Could not find any route to access the provided URI')
     except urllib.error.HTTPError:
         raise FileNotFoundError('Could not access the provided URI')
     except ValueError:
         raise ValueError('Wrong URI format')
     else:
-        file_name = file_uri.split('/')[-1]
-        pdf_name = file_name.replace('.pdf', '') + '.pdf' # Delete eventual ".pdf" before adding it
-        pdf_local_path = directory + '/' + pdf_name
-        if not os.path.isdir(directory):
-            raise FileNotFoundError("Directory '{}' does not exist".format(directory))
-        if not os.path.isfile(pdf_local_path):
-            with open(pdf_local_path, 'wb') as pdf_file:
-                pdf_file.write(web_file.read())
-            web_file.close()
-            if is_pdf(pdf_local_path):
-                return pdf_local_path
-            else:
-                os.remove(pdf_local_path)
-                raise PDFSyntaxError('The file being pointed by the provided URI does not seem to be a PDF')
-        else:
-            raise FileExistsError('File \"{}\" already exists'.format(pdf_name))   
-        
-def extract_pdf_metadata(pdf_path:str) -> dict:
-    """Returns the metadata of a PDF
+        pdf_txt = response.read()
+        file_object = BytesIO()
+        file_object.write(pdf_txt)
+        return file_object    
 
-    Parameters:
-    pdf_path (str) : the path of the PDF file of which metadata should be extracted
-
-    Returns:
-    dict: metadata of the PDF, presented as a JSON structured as follows : 
-        {
-            metadata:{
-                        "Author": "AURORE",
-                        "CreationDate": "D:20200325185329+01'00'",
-                        "Creator": "Microsoft Office Word 2007",
-                        "ModDate": "D:20210311153835+01'00'",
-                        "Producer": "Microsoft Office Word 2007",
-                        "Title": "DOSSIER COUP DE POUCE 2020"
-                    }
-            content:"Lorem ipsum dolor sit amet, ..."
-        }
-    """
-    with open(pdf_path, 'rb') as pdf_file:
-        pdf_parser = PDFParser(pdf_file)
-        doc = PDFDocument(pdf_parser)
-        metadata = doc.info[0]
-        for (key, value) in doc.info[0].items():
-            # Need to decode each value from bytestrings toward strings
-            metadata[key] = value.decode("utf-8", errors='ignore')
-        return metadata
-
-def extract_pdf_content(pdf_path:str) -> str:
-    """Returns the content of a PDF as a string
-
-    Parameters:
-    pdf_path (str) : the path of the PDF file of which content should be extracted
-
-    Returns:
-    str: content of the PDF as a string
-    """
-    with open(pdf_path,'rb') as pdf_file:
-        content_as_string = extract_text(pdf_file)
-        return content_as_string
-
-def extract_pdf_data(pdf_uri:str) -> List:
-    """Extracts PDF data acessible from a URI
+def extract_data_from_pdf_uri(pdf_uri:str) -> List:
+    """Extracts data from a PDF being pointed by a URI
 
     Parameters:
     pdf_uri (str) : the URI through which access the file
@@ -124,11 +47,14 @@ def extract_pdf_data(pdf_uri:str) -> List:
         }
     str: PDF content
     """
-    # If tmp directory does not exist, create it
-    if not os.path.isdir(TMP_DIRECTORY):
-        os.mkdir(TMP_DIRECTORY)
-    pdf_path = download_pdf(pdf_uri, TMP_DIRECTORY)
-    pdf_metadata = extract_pdf_metadata(pdf_path)
-    pdf_content = extract_pdf_content(pdf_path)
-    clear_dir(TMP_DIRECTORY) # Remove the temporarily created file
+    file_obj = get_file_object_from_uri(pdf_uri)
+    pdf_parser = PDFParser(file_obj)
+    doc = PDFDocument(pdf_parser)
+    # 1. Extract PDF Metadata
+    pdf_metadata = doc.info[0]
+    for (key, value) in doc.info[0].items():
+        # Need to decode each value from bytestrings toward strings
+        pdf_metadata[key] = value.decode("utf-8", errors='ignore')
+    # 2. Extract PDF content
+    pdf_content = extract_text(file_obj)
     return pdf_metadata, pdf_content
