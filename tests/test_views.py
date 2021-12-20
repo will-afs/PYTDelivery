@@ -1,84 +1,121 @@
-import unittest
-from flask import Flask
-# from flaskapp.views import extract_pdf_metadata
 import json
+from flask import g, session
+from flaskapp.db.db import get_db
+from flaskapp.db.pdf_utils import get_pdf_id, create_pdf, fill_pdf
 
-app = Flask(__name__)
+import configparser
 
-PDF_DATA_FILE_NAME = 'PDF_FILE.pdf'
-NOT_EXISTING_DATA_FILE_NAME = 'file_name_which_does_not_exist'
-NOT_PDF_DATA_FILE_NAME = 'dummy.text'
-EMPTY_FILE_NAME = None
 
-# class TestExtractPDFData(unittest.TestCase):
-#     def test_extract_pdf_metadata_success(self):
-#         data_json = {
-#                         'Author': 'AURORE',
-#                         'CreationDate': "D:20200325185329+01'00'",
-#                         'Creator': 'Microsoft Office Word 2007',
-#                         'ModDate': "D:20210311153835+01'00'",
-#                         'Producer': 'Microsoft Office Word 2007',
-#                         'Title': 'DOSSIER COUP DE POUCE 2020',
-#                     }
-#         reference = {
-#                         "data":json.dumps(data_json),
-#                         "status_code":405
-#                     }
-#         urn = '/extract_pdf_metadata/' + PDF_DATA_FILE_NAME
-#         with app.test_client() as client:
-#             response = client.get(urn)
-#             # received_json_data = response.get_json()
-#             self.assertEqual(response.data, reference["data"])
-#             self.assertEqual(response.status_code, reference["status_code"])
+config = configparser.ConfigParser()
+TESTS_DIRECTORY = './tests'
+config.read(TESTS_DIRECTORY + '/setup.cfg')
+
+DATA_FILE_PATH = config['PATHS']['DATA_FILE_PATH']
+PDF_DATA_FILE_NAME = config['PATHS']['PDF_DATA_FILE_NAME']
+PDF_CONTENT_REFERENCE = config['PATHS']['PDF_CONTENT_REFERENCE']
+PDF_METADATA_REFERENCE = config['PATHS']['PDF_METADATA_REFERENCE']
+WRONG_PDF_URI = config['PATHS']['WRONG_PDF_URI']
+NOT_FOUND_PDF_URI = config['PATHS']['NOT_FOUND_PDF_URI']
+NOT_PDF_URI = config['PATHS']['NOT_PDF_URI']
+PDF_URI = config['PATHS']['PDF_URI']
+
+# *********** extract_pdf_metadata_and_content_from_uri test cases ***********
+
+def test_extract_pdf_metadata_and_content_from_uri_success(client, app):
+    response = client.post(
+        '/documents/', query_string={'file_uri': PDF_URI}, follow_redirects=True
+    )
+    assert response.status == "200 OK"
+    response_data_as_json = json.loads(response.data.decode('utf-8').replace("\n", ""))
+    assert response_data_as_json['message'] == "Uploaded PDF successfully"
+    assert response_data_as_json['pdf_id'] == "1"
     
-#     def test_extract_pdf_metadata_no_file_name_fails(self):
-#         reference = {
-#                         "data":'',
-#                         "message":'',
-#                         "status_code":400
-#                     }
-#         urn = '/extract_pdf_metadata/' + EMPTY_FILE_NAME
-#         with app.test_client() as client:
-#             response = client.get(urn)
-#             self.assertEqual(response.data, reference["data"])
-#             self.assertEqual(response.status_code, reference["status_code"])
+    # Assert the PDF has been added into the database
+    with app.app_context():
+        assert get_pdf_id(get_db(), PDF_URI) is not None
 
-#     def test_extract_pdf_metadata_wrong_file_name_fails(self):
-#         reference = {
-#                         "data":'',
-#                         "message":'',
-#                         "status_code":404
-#                     }
-#         urn = '/extract_pdf_metadata/' + NOT_EXISTING_DATA_FILE_NAME
-#         with app.test_client() as client:
-#             response = client.get(urn)
-#             self.assertEqual(response.data, reference["data"])
-#             self.assertEqual(response.status_code, reference["status_code"])
+def test_extract_pdf_metadata_and_content_no_uri_fail(client, app):
+    response = client.post(
+        '/documents/', follow_redirects=True
+    )
+    assert response.status == "400 BAD REQUEST"
+    response_data_as_json = json.loads(response.data.decode('utf-8').replace("\n", ""))
+    assert response_data_as_json['message'] == "Please provide an URI pointing to a file"
     
-#     def test_extract_pdf_metadata_wrong_file_format_fails(self):
-#         reference = {
-#                         "data":'',
-#                         "message":'',
-#                         "status_code":405
-#                     }
-#         urn = '/extract_pdf_metadata/' + NOT_PDF_DATA_FILE_NAME
-#         with app.test_client() as client:
-#             response = client.get(urn)
-#             self.assertEqual(response.data, reference["data"])
-#             self.assertEqual(response.status_code, reference["status_code"])
+def test_extract_pdf_metadata_and_content_wrong_uri_fail(client, app):
+    response = client.post(
+        '/documents/', query_string={'file_uri': WRONG_PDF_URI}, follow_redirects=True
+    )
+    assert response.status == "400 BAD REQUEST"
+    response_data_as_json = json.loads(response.data.decode('utf-8').replace("\n", ""))
+    assert response_data_as_json['message'] == "Wrong URI format"
 
+# *********** get_pdf_metadata test cases ***********
 
+def test_get_pdf_metadata_success(client, app):
+    # Import reference metadata
+    with open(DATA_FILE_PATH + PDF_METADATA_REFERENCE, 'r') as pdf_metadata_reference_file:
+            reference_metadata = json.load(pdf_metadata_reference_file)
+    # Add PDF instance into database
+    with app.app_context():
+        pdf_id = create_pdf(get_db(), PDF_URI)
+        fill_pdf(get_db(), pdf_id, json.dumps(reference_metadata), 'dummy content')
+    # Now, test the view
+    response = client.get(
+        '/documents/{}/metadata.json/'.format(pdf_id),
+    )
+    assert response.status == "200 OK"
+    response_data_as_json = json.loads(response.data.decode('utf-8').replace("\n", ""))
+    assert response_data_as_json['message'] == "Successfully retrieved PDF metadata in database"
+    assert response_data_as_json['metadata'] == reference_metadata
 
+def test_get_pdf_metadata_not_in_base_success(client, app):
+    response = client.get(
+        '/documents/{}/metadata.json/'.format(10),
+    )
+    assert response.status == "404 NOT FOUND"
+    response_data_as_json = json.loads(response.data.decode('utf-8').replace("\n", ""))
+    assert response_data_as_json['message'] == "No PDF with such ID in database"
 
-# # @pytest.fixture
-# def client():
-#     db_fd, db_path = tempfile.mkstemp()
-#     app = create_app({'TESTING': True, 'DATABASE': db_path})
+def test_get_pdf_metadata_wrong_pdf_id_format_fail(client, app):
+    response = client.get(
+        '/documents/{}/metadata.json/'.format(-1),
+    )
+    assert response.status == "404 NOT FOUND" # Managed by Flask routing service
 
-#     with app.test_client() as client:
-#         with app.app_context():
-#             init_db()
-#         yield client
+# TODO : should test whether PDF is in base but metadata is empty
 
-#     os.close(db_fd)
-#     os.unlink(db_path)
+# *********** get_pdf_content test cases ***********
+
+def test_get_pdf_content_success(client, app):
+    # Import reference content
+    with open(DATA_FILE_PATH + PDF_CONTENT_REFERENCE, 'r') as pdf_content_reference_file:
+        reference_content = pdf_content_reference_file.read()
+    # Add PDF instance into database
+    with app.app_context():
+        pdf_id = create_pdf(get_db(), PDF_URI)
+        fill_pdf(get_db(), pdf_id, '{"dummy key":"dummy value"}', reference_content)
+    # Now, test the view
+    response = client.get(
+        '/documents/{}/content.txt/'.format(pdf_id),
+    )
+    assert response.status == "200 OK"
+    response_data_as_json = json.loads(response.data.decode('utf-8').replace("\n", ""))
+    assert response_data_as_json['message'] == "Successfully retrieved PDF content in database"
+    assert response_data_as_json['content'] == reference_content
+
+def test_get_pdf_content_not_in_base_success(client, app):
+    response = client.get(
+        '/documents/{}/content.txt/'.format(10),
+    )
+    assert response.status == "404 NOT FOUND"
+    response_data_as_json = json.loads(response.data.decode('utf-8').replace("\n", ""))
+    assert response_data_as_json['message'] == "No PDF with such ID in database"
+
+def test_get_pdf_content_wrong_pdf_id_format_fail(client, app):
+    response = client.get(
+        '/documents/{}/content.txt/'.format(-1),
+    )
+    assert response.status == "404 NOT FOUND" # Managed by Flask routing service
+
+# TODO : should test whether PDF is in base but content is empty

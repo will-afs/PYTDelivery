@@ -18,8 +18,6 @@ def get_file_object_from_uri(file_uri:str) -> BytesIO:
     """
     try:
         response = urllib.request.urlopen(file_uri)
-    # except urllib.error.URLError:
-    #     raise ConnectionError('Could not find any route to access the provided URI')
     except urllib.error.HTTPError:
         raise FileNotFoundError('Could not access the provided URI')
     except ValueError:

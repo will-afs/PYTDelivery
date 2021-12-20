@@ -1,13 +1,13 @@
 import unittest
 from pdfminer.pdfparser import PDFSyntaxError
-from flaskapp.core.extract_pdf_data import extract_data_from_pdf_file_object, get_file_object_from_uri, extract_data_from_pdf_uri
+from flaskapp.core.extract_pdf_data import get_file_object_from_uri, extract_data_from_pdf_uri
 # from flaskapp.core.extract_pdf_data import clear_dir, extract_pdf_metadata, extract_pdf_content, download_pdf, is_pdf, extract_pdf_data
 import configparser, json, os, glob
 from io import BytesIO
 
 config = configparser.ConfigParser()
 TESTS_DIRECTORY = './tests'
-config.read(TESTS_DIRECTORY + '/test_extract_pdf_data.cfg')
+config.read(TESTS_DIRECTORY + '/setup.cfg')
 
 DATA_FILE_PATH = config['PATHS']['DATA_FILE_PATH']
 PDF_DATA_FILE_NAME = config['PATHS']['PDF_DATA_FILE_NAME']

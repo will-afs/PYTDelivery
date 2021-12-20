@@ -37,13 +37,14 @@ def get_pdf(db_cursor, pdf_id:int)->dict:
         ' WHERE p.id = ?',
         (pdf_id,)
     ).fetchone()
+    pdf=None
     if pdf_row is not None:
         pdf = {
                 "id":pdf_row['id'], 
                 "file_uri":pdf_row['file_uri'],
                 "metadata":json.loads(pdf_row['metadata']),
                 "content":pdf_row['content']
-            }
+            }        
     return pdf
 
 def create_pdf(db_cursor, file_uri)->int:

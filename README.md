@@ -59,22 +59,22 @@ It will return a Task ID. The Content and Metadata of the PDF will be extracted 
 
 Getting the general informations on a previously launched task (processing state, file_uri, metadata, pdf_id, link to content):
 
-    curl http://127.0.0.1:5000/documents/<task_id>
+    curl http://127.0.0.1:5000/documents/<task_id>/
 
 Getting the PDF metadata :
 
-    curl http://127.0.0.1:5000/documents/<pdf_id>/metadata.json
+    curl http://127.0.0.1:5000/documents/<pdf_id>/metadata.json/
     
 Getting the PDF content :
 
-    curl http://127.0.0.1:5000/documents/<pdf_id>/content.txt
+    curl http://127.0.0.1:5000/documents/<pdf_id>/content.txt/
 
 Running unit tests
 ------------------
 The tests are defined in tests.py files.
 They can be launched from the root directory, by running the following command :
 
-    python -m unittest discover -s tests
+    pytest
     
-For more documentation about running tests, please refer to the official documentation : https://docs.python.org/3/library/unittest.html
+For more documentation about running tests, please refer to the official documentation : https://docs.pytest.org/en/6.2.x/
 
