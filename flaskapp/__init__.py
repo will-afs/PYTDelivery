@@ -28,10 +28,12 @@ def create_app(test_config=None):
 
     # register the database commands
     from flaskapp.db import db
+
     db.init_app(app)
 
     # apply the blueprints to the app
     from flaskapp import views
+
     app.register_blueprint(views.bp)
 
     # make url_for('index') == url_for('blog.index')

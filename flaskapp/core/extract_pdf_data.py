@@ -7,7 +7,7 @@ from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfparser import PDFParser, PDFSyntaxError
 
 
-def get_file_object_from_uri(file_uri:str) -> BytesIO:
+def get_file_object_from_uri(file_uri: str) -> BytesIO:
     """Return a Python File Object obtained from an URI
 
     Parameters:
@@ -19,27 +19,28 @@ def get_file_object_from_uri(file_uri:str) -> BytesIO:
     try:
         response = urllib.request.urlopen(file_uri)
     except urllib.error.HTTPError:
-        raise FileNotFoundError('Could not access the provided URI')
+        raise FileNotFoundError("Could not access the provided URI")
     except ValueError:
-        raise ValueError('Wrong URI format')
+        raise ValueError("Wrong URI format")
     else:
         pdf_txt = response.read()
         file_object = BytesIO()
         file_object.write(pdf_txt)
-        return file_object    
+        return file_object
 
-def extract_data_from_pdf_uri(pdf_uri:str) -> List:
+
+def extract_data_from_pdf_uri(pdf_uri: str) -> List:
     """Extracts data from a PDF being pointed by a URI
 
     Parameters:
     pdf_uri (str) : the URI through which access the file
 
     Returns:
-    dict: metadata of the PDF, presented as a JSON structured as follows : 
+    dict: metadata of the PDF, presented as a JSON structured as follows :
         {
-            "Producer": "GPL Ghostscript SVN PRE-RELEASE 8.62", 
-            "CreationDate": "D:20080203020500-05'00'", 
-            "ModDate": "D:20080203020500-05'00'", 
+            "Producer": "GPL Ghostscript SVN PRE-RELEASE 8.62",
+            "CreationDate": "D:20080203020500-05'00'",
+            "ModDate": "D:20080203020500-05'00'",
             "Creator": "dvips 5.499 Copyright 1986, 1993 Radical Eye Software",
             "Title": "dynamic.dvi"
         }
@@ -52,7 +53,7 @@ def extract_data_from_pdf_uri(pdf_uri:str) -> List:
     pdf_metadata = doc.info[0]
     for (key, value) in doc.info[0].items():
         # Need to decode each value from bytestrings toward strings
-        pdf_metadata[key] = value.decode("utf-8", errors='ignore')
+        pdf_metadata[key] = value.decode("utf-8", errors="ignore")
     # 2. Extract PDF content
     pdf_content = extract_text(file_obj)
     return pdf_metadata, pdf_content
