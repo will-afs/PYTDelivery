@@ -1,7 +1,6 @@
 import json
 from flask import g, session
-from flaskapp.db.db import get_db
-from flaskapp.db.pdf_utils import get_pdf_id, create_pdf, fill_pdf
+from flaskapp.db.db import get_db, get_pdf_id, create_pdf, fill_pdf
 
 import configparser
 

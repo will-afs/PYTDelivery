@@ -5,8 +5,7 @@ click==8.0.3
 coverage==6.2
 cryptography==35.0.0
 Flask==2.0.2
-Flask-SQLAlchemy==2.5.1
--e git+https://github.com/will-afs/PYTDelivery.git@2f52fc0f5408d8bafd81bc53e4b6678660188187#egg=flaskapp
+-e git+https://github.com/will-afs/PYTDelivery.git@812ed96fe711118e43d34d7fa7ba59c5a8b51310#egg=flaskapp
 greenlet==1.1.2
 iniconfig==1.1.1
 itsdangerous==2.0.1
@@ -21,7 +20,6 @@ pycparser==2.20
 pycryptodome==3.11.0
 pyparsing==3.0.6
 pytest==6.2.5
-SQLAlchemy==1.4.27
 sshclient==0.1
 toml==0.10.2
 Werkzeug==2.0.2
