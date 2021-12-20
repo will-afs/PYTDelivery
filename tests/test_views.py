@@ -1,8 +1,7 @@
-import json
-from flaskapp.db.db import get_db, get_pdf_id, create_pdf, fill_pdf
-
 import configparser
+import json
 
+from flaskapp.db.db import create_pdf, fill_pdf, get_db, get_pdf_id
 
 config = configparser.ConfigParser()
 TESTS_DIRECTORY = './tests'

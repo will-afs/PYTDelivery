@@ -1,12 +1,13 @@
-import functools, json
+import functools
+import json
 from urllib.error import HTTPError
-from flask import (
-    Flask, Blueprint, g, request, make_response
-)
-from flaskapp.db.db import get_db, get_pdf_id, get_pdf, create_pdf, fill_pdf
-from flaskapp.core.extract_pdf_data import extract_data_from_pdf_uri
+
+from flask import Blueprint, Flask, g, make_response, request
 from pdfminer.pdfparser import PDFSyntaxError
 from werkzeug.utils import secure_filename
+
+from flaskapp.core.extract_pdf_data import extract_data_from_pdf_uri
+from flaskapp.db.db import create_pdf, fill_pdf, get_db, get_pdf, get_pdf_id
 
 bp = Blueprint('core', __name__, url_prefix='/')
 

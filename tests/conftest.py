@@ -4,7 +4,6 @@ import os
 import tempfile
 
 import pytest
-# import unittest
 
 from flaskapp import create_app
 from flaskapp.db.db import get_db, init_db

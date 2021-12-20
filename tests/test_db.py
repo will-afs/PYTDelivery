@@ -1,4 +1,7 @@
-import sqlite3, pytest
+import sqlite3
+
+import pytest
+
 from flaskapp.db.db import get_db
 
 

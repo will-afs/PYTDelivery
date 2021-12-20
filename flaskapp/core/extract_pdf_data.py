@@ -1,10 +1,10 @@
-from typing import List, Literal
-from pdfminer.pdfparser import PDFParser
-from pdfminer.pdfdocument import PDFDocument
-from pdfminer.high_level import extract_text
-import urllib, os, glob
-from pdfminer.pdfparser import PDFSyntaxError
+import urllib
 from io import BytesIO
+from typing import List
+
+from pdfminer.high_level import extract_text
+from pdfminer.pdfdocument import PDFDocument
+from pdfminer.pdfparser import PDFParser, PDFSyntaxError
 
 
 def get_file_object_from_uri(file_uri:str) -> BytesIO:

@@ -1,8 +1,12 @@
+import configparser
+import json
 import unittest
-from pdfminer.pdfparser import PDFSyntaxError
-from flaskapp.core.extract_pdf_data import get_file_object_from_uri, extract_data_from_pdf_uri
-import configparser, json
 from io import BytesIO
+
+from pdfminer.pdfparser import PDFSyntaxError
+
+from flaskapp.core.extract_pdf_data import (extract_data_from_pdf_uri,
+                                            get_file_object_from_uri)
 
 config = configparser.ConfigParser()
 TESTS_DIRECTORY = './tests'
