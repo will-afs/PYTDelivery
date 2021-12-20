@@ -44,7 +44,12 @@ def extract_pdf_metadata_and_content_from_uri():
                     data = {
                                 "message":"Uploaded PDF successfully",
                                 "pdf_id":str(pdf_id),
-                            }                   
+                            }
+            except PDFSyntaxError:
+                status = 400
+                data = {
+                            "message":"The content pointed by the provided URI does not seem to be a PDF"
+                        }                 
             except ValueError:
                 status = 400
                 data = {
@@ -105,7 +110,7 @@ def get_pdf_metadata(pdf_id:int):
 
 @bp.route('/documents/<int:pdf_id>/content.txt/', methods=['GET'])
 def get_pdf_content(pdf_id:int):
-    """API endpoint to get PDF content from database, under json format
+    """API endpoint to get PDF content from database, as a .txt file
 
     Requires to specify the ID of the PDF in database
     """
@@ -131,41 +136,3 @@ def get_pdf_content(pdf_id:int):
                     }        
         response = make_response(data, status)
         return response
-
-# @bp.route("/extract_pdf_metadata/<pdf_name>", methods=['GET'])
-# def extract_pdf_metadata(pdf_name):
-#     """API endpoint to extract PDF metadata
-#     """
-#     if request.method == 'GET':
-#         # pdf_name = request.args.get("pdf_name")
-#         pdf_path = UPLOAD_FOLDER + pdf_name
-#         try :
-#             data = extract_pdf_data.extract_pdf_metadata(pdf_path=pdf_path)
-#             status = 200
-#         except FileNotFoundError:
-#             data = "File not found"
-#             status = 404
-#         except PDFSyntaxError:
-#             data = "The file is not a PDF"
-#             status = 405    
-#         response = make_response(data, status)
-#         return response
-
-# @bp.route("/extract_pdf_content/<pdf_name>", methods=['GET'])
-# def extract_pdf_content(pdf_name):
-#     """API endpoint to extract PDF content
-#     """
-#     if request.method == 'GET':
-#         # pdf_name = request.args.get("pdf_name")
-#         pdf_path = UPLOAD_FOLDER + pdf_name
-#         try :
-#             data = extract_pdf_data.extract_pdf_content(pdf_path=pdf_path)
-#             status = 200
-#         except FileNotFoundError:
-#             data = "File not found"
-#             status = 404
-#         except PDFSyntaxError:
-#             data = "The file is not a PDF"
-#             status = 405
-#         response = make_response(data, status)
-#         return response

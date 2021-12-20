@@ -34,6 +34,14 @@ def test_extract_pdf_metadata_and_content_from_uri_success(client, app):
     with app.app_context():
         assert get_pdf_id(get_db(), PDF_URI) is not None
 
+def test_extract_pdf_metadata_and_content_not_pdf_fail(client, app):
+    response = client.post(
+        '/documents/', query_string={'file_uri': NOT_PDF_URI}, follow_redirects=True
+    )
+    assert response.status == "400 BAD REQUEST"
+    response_data_as_json = json.loads(response.data.decode('utf-8').replace("\n", ""))
+    assert response_data_as_json['message'] == "The content pointed by the provided URI does not seem to be a PDF"
+
 def test_extract_pdf_metadata_and_content_no_uri_fail(client, app):
     response = client.post(
         '/documents/', follow_redirects=True
