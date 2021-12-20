@@ -1,8 +1,7 @@
 import unittest
 from pdfminer.pdfparser import PDFSyntaxError
 from flaskapp.core.extract_pdf_data import get_file_object_from_uri, extract_data_from_pdf_uri
-# from flaskapp.core.extract_pdf_data import clear_dir, extract_pdf_metadata, extract_pdf_content, download_pdf, is_pdf, extract_pdf_data
-import configparser, json, os, glob
+import configparser, json
 from io import BytesIO
 
 config = configparser.ConfigParser()
