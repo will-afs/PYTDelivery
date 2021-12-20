@@ -1,6 +1,27 @@
+attrs==21.2.0
+cffi==1.15.0
+chardet==4.0.0
 click==8.0.3
+coverage==6.2
+cryptography==35.0.0
 Flask==2.0.2
+Flask-SQLAlchemy==2.5.1
+-e git+https://github.com/will-afs/PYTDelivery.git@2f52fc0f5408d8bafd81bc53e4b6678660188187#egg=flaskapp
+greenlet==1.1.2
+iniconfig==1.1.1
 itsdangerous==2.0.1
 Jinja2==3.0.2
 MarkupSafe==2.0.1
+packaging==21.3
+pdfminer==20191125
+pdfminer.six==20211012
+pluggy==1.0.0
+py==1.11.0
+pycparser==2.20
+pycryptodome==3.11.0
+pyparsing==3.0.6
+pytest==6.2.5
+SQLAlchemy==1.4.27
+sshclient==0.1
+toml==0.10.2
 Werkzeug==2.0.2
