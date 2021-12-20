@@ -3,8 +3,7 @@ from urllib.error import HTTPError
 from flask import (
     Flask, Blueprint, g, request, make_response
 )
-from flaskapp.db.db import get_db
-from flaskapp.db.pdf_utils import get_pdf_id, get_pdf, create_pdf, fill_pdf
+from flaskapp.db.db import get_db, get_pdf_id, get_pdf, create_pdf, fill_pdf
 from flaskapp.core.extract_pdf_data import extract_data_from_pdf_uri
 from pdfminer.pdfparser import PDFSyntaxError
 from werkzeug.utils import secure_filename
