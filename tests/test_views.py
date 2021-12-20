@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+=======
+import json
+from flask import g, session
+from flaskapp.db.db import get_db, get_pdf_id, create_pdf, fill_pdf
+
+>>>>>>> 569104bdb15e1bd373577ba35702d8485d2d5fe8
 import configparser
 import json
 

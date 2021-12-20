@@ -1,8 +1,16 @@
 import functools
 import json
 from urllib.error import HTTPError
+<<<<<<< HEAD
 
 from flask import Blueprint, Flask, g, make_response, request
+=======
+from flask import (
+    Flask, Blueprint, g, request, make_response
+)
+from flaskapp.db.db import get_db, get_pdf_id, get_pdf, create_pdf, fill_pdf
+from flaskapp.core.extract_pdf_data import extract_data_from_pdf_uri
+>>>>>>> 569104bdb15e1bd373577ba35702d8485d2d5fe8
 from pdfminer.pdfparser import PDFSyntaxError
 from werkzeug.utils import secure_filename
 
