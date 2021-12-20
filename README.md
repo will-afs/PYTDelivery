@@ -51,24 +51,30 @@ The service can be accessed by a client through HTTP requests as follows.
 
 Posting the PDF towards the service file system:
 
-    curl http://127.0.0.1:5000/extract_pdf_metadata/ -d -o PDF_FILE.pdf
+    curl -X POST http://127.0.0.1:5000/documents/?file_uri=http://arxiv.org/pdf/cs/9308101v1
 
-*Note : the PDF file will be stored into the flaskapp/resources directory !*
+*Note : the file_uri argument has to point onto a PDF !*
 
-Getting the PDF metadata after having sent it:
+It will return a Task ID. The Content and Metadata of the PDF will be extracted and stored into the system's database asynchronously.
 
-    curl http://127.0.0.1:5000/extract_pdf_metadata/?pdf_name=PDF_FILE.pdf
+Getting the general informations on a previously launched task (processing state, file_uri, metadata, pdf_id, link to content):
+
+    curl http://127.0.0.1:5000/documents/<task_id>
+
+Getting the PDF metadata :
+
+    curl http://127.0.0.1:5000/documents/<pdf_id>/metadata.json
     
-Getting the PDF content after having sent it:
+Getting the PDF content :
 
-    curl http://127.0.0.1:5000/extract_pdf_content/?pdf_name=PDF_FILE.pdf
+    curl http://127.0.0.1:5000/documents/<pdf_id>/content.txt
 
 Running unit tests
 ------------------
 The tests are defined in tests.py files.
 They can be launched from the root directory, by running the following command :
 
-    python -m unittest discover -s flaskapp/tests
+    python -m unittest discover -s tests
     
 For more documentation about running tests, please refer to the official documentation : https://docs.python.org/3/library/unittest.html
 
