@@ -1,11 +1,7 @@
-<<<<<<< HEAD
 import sqlite3
 
 import pytest
 
-=======
-import sqlite3, pytest
->>>>>>> 569104bdb15e1bd373577ba35702d8485d2d5fe8
 from flaskapp.db.db import get_db
 
 
