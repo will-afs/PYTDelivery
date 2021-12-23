@@ -29,70 +29,74 @@ def populate_db_from_arxiv_api():
         else:
             start = int(request.args["start"])
             max_results = int(request.args["max_results"])
-            # Gather PDF URIs
-            url = "https://export.arxiv.org/api/"
-            query = "query?search_query=cat:{}&start={}&max_results={}&sortBy=lastUpdatedDate&sortOrder=ascending".format(
-                                                                                                                            category,
-                                                                                                                            start,
-                                                                                                                            max_results
-                                                                                                                        )
-            uri = url+query
-            try:                                                                  
-                response = urllib.request.urlopen(uri)
-            except urllib.error.HTTPError:
-                status = 400
-                data = {"message":"Could not access the provided URI. Maybe check the requests parameters?"}
-            pdf_uris = extract_pdf_uris_from_atom_feed(feed = response.read())
-            if len(pdf_uris) != 0:
-                # Setup measurement variables for service performance statistics
-                number_of_pdf_extracted = max_results
-                pdf_timers = []
-                global_start = timer()
-                db = get_db() # Fetch DB cursor
-                db_elapsed_time = timer() - global_start
-                db_size_begin = os.path.getsize(os.getcwd() + '/instance/flaskapp.sqlite')
-                # Start extracting process
-                for pdf_uri in pdf_uris:
-                    try:
-                        start_current_pdf = timer()
-                        pdf_id = create_pdf(db_cursor=db, file_uri=pdf_uri)
-                    except:
-                        number_of_pdf_extracted += -1
-                    else:
+            if max_results <= 1000:
+                # Gather PDF URIs
+                url = "https://export.arxiv.org/api/"
+                query = "query?search_query=cat:{}&start={}&max_results={}&sortBy=lastUpdatedDate&sortOrder=ascending".format(
+                                                                                                                                category,
+                                                                                                                                start,
+                                                                                                                                max_results
+                                                                                                                            )
+                uri = url+query
+                try:                                                                  
+                    response = urllib.request.urlopen(uri)
+                except urllib.error.HTTPError:
+                    status = 400
+                    data = {"message":"Could not access the provided URI. Maybe check the requests parameters?"}
+                pdf_uris = extract_pdf_uris_from_atom_feed(feed = response.read())
+                if len(pdf_uris) != 0:
+                    # Setup measurement variables for service performance statistics
+                    number_of_pdf_extracted = max_results
+                    pdf_timers = []
+                    global_start = timer()
+                    db = get_db() # Fetch DB cursor
+                    db_elapsed_time = timer() - global_start
+                    db_size_begin = os.path.getsize(os.getcwd() + '/instance/flaskapp.sqlite')
+                    # Start extracting process
+                    for pdf_uri in pdf_uris:
                         try:
-                            metadata, content = extract_data_from_pdf_uri(pdf_uri)
-                        except TypeError:
+                            start_current_pdf = timer()
+                            pdf_id = create_pdf(db_cursor=db, file_uri=pdf_uri)
+                        except:
                             number_of_pdf_extracted += -1
                         else:
-                            metadata = json.dumps(metadata)
-                            fill_pdf(
-                                db_cursor=db, pdf_id=pdf_id, metadata=metadata, content=content
-                            )
-                            pdf_elapsed_time = timer() - start_current_pdf
-                            pdf_timers.append(pdf_elapsed_time)
-                            print("Elapsed {} seconds for this PDF".format(pdf_elapsed_time))
-                        # To respect arxiv.org API constraint of 3s between each request
-                        if timer() - start_current_pdf < 3:
-                            time.sleep(4 - (timer() - start_current_pdf))
-                global_elapsed_time = sum(pdf_timers) + db_elapsed_time
-                db_size_end = os.path.getsize(os.getcwd() + '/instance/flaskapp.sqlite')
-                status = 200
-                data = {
-                    "message": "Successfully retrieved, extracted, and stored in local DB {} PDFs metadata and content. {} were already in database".format(
-                                                                                                                                                                number_of_pdf_extracted,
-                                                                                                                                                                max_results-number_of_pdf_extracted
-                                                                                                                                                            ),
-                    "total elapsed time (s)": str(global_elapsed_time),
-                    "max time by pdf (s)": str(max(pdf_timers)),
-                    "stddev in total time by pdf (s)": str(statistics.stdev(pdf_timers)),
-                    "number of pdf of more than 3s in total time (s)": str(sum(map(lambda x : x>3, pdf_timers))),
-                    "mean time by pdf (s)": str(statistics.mean(pdf_timers)),
-                    "total db size (Mo)": str((db_size_end - db_size_begin)/1000),
-                    "mean size taken by a pdf (Mo)": str(((db_size_end - db_size_begin)/number_of_pdf_extracted)/1000),
-                }
+                            try:
+                                metadata, content = extract_data_from_pdf_uri(pdf_uri)
+                            except TypeError:
+                                number_of_pdf_extracted += -1
+                            else:
+                                metadata = json.dumps(metadata)
+                                fill_pdf(
+                                    db_cursor=db, pdf_id=pdf_id, metadata=metadata, content=content
+                                )
+                                pdf_elapsed_time = timer() - start_current_pdf
+                                pdf_timers.append(pdf_elapsed_time)
+                                print("Elapsed {} seconds for this PDF".format(pdf_elapsed_time))
+                            # To respect arxiv.org API constraint of 3s between each request
+                            if timer() - start_current_pdf < 3:
+                                time.sleep(4 - (timer() - start_current_pdf))
+                    global_elapsed_time = sum(pdf_timers) + db_elapsed_time
+                    db_size_end = os.path.getsize(os.getcwd() + '/instance/flaskapp.sqlite')
+                    status = 200
+                    data = {
+                        "message": "Successfully retrieved, extracted, and stored in local DB {} PDFs metadata and content. {} were already in database".format(
+                                                                                                                                                                    number_of_pdf_extracted,
+                                                                                                                                                                    max_results-number_of_pdf_extracted
+                                                                                                                                                                ),
+                        "total elapsed time (s)": str(global_elapsed_time),
+                        "max time by pdf (s)": str(max(pdf_timers)),
+                        "stddev in total time by pdf (s)": str(statistics.stdev(pdf_timers)),
+                        "number of pdf of more than 3s in total time (s)": str(sum(map(lambda x : x>3, pdf_timers))),
+                        "mean time by pdf (s)": str(statistics.mean(pdf_timers)),
+                        "total db size (Mo)": str((db_size_end - db_size_begin)/1000),
+                        "mean size taken by a pdf (Mo)": str(((db_size_end - db_size_begin)/number_of_pdf_extracted)/1000),
+                    }
+                else:
+                    status = 200
+                    data = {"message":"No PDF to extract from ArXiv.org API for this set of arguments"}
             else:
-                status = 200
-                data = {"message":"No PDF to extract from ArXiv.org API for this set of arguments"}
+                status = 400
+                data = {"message":"Argument 'max_result' can not exceed 1000 to prevent performance issues into ArXiv.org backend"}
         response = make_response(data, status)
         return response
 

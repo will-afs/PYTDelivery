@@ -57,6 +57,14 @@ def populate_db_from_arxiv_api_query_out_of_range_success(client, app):
     response_data_as_json = json.loads(response.data.decode("utf-8").replace("\n", ""))
     assert response_data_as_json["message"] == "No PDF to extract from ArXiv.org API for this set of arguments"
 
+def populate_db_from_arxiv_api_max_results_out_of_range_fail(client, app):
+    response = client.post(
+        "/documents/populate_db_from_arxiv_api/", query_string={"cat": 'vdf', "start":"0", "max_results":"1001"}, follow_redirects=True
+    )
+    assert response.status == "400 BAD REQUEST"
+    response_data_as_json = json.loads(response.data.decode("utf-8").replace("\n", ""))
+    assert response_data_as_json["message"] == "Argument 'max_result' can not exceed 1000 to prevent performance issues into ArXiv.org backend"
+
 # *********** extract_pdf_metadata_and_content_from_uri test cases ***********
 
 def test_extract_pdf_metadata_and_content_from_uri_success(client, app):
