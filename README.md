@@ -50,8 +50,7 @@ The application database can be populated by batchs from the ArXiv.org API by ru
 It is only left for endpoint reutisability purposes : this endpoint does not accept any other category for now
 * **"start" is the start index for the ArXiv.org query of their database**. Here, it is set to 0, meaning it will start from the first PDF in base.
 To date (December 2021), there are about 41000 to 42000 PDFs stored in their database
-* **"max_results" is the maximal number of PDFs to fetch**. The ArXiv.org API user manual discourages to use a max_results value of more than 1000 PDFs.
-But here, the liberty is let to the user to fill any other value.
+* **"max_results" is the maximal number of PDFs to fetch**. The ArXiv.org API user manual discourages to use a max_results value of more than 1000 PDFs, so it is not allowed to provide a higher value
 
 PDFs can also be imported one by one into the application database by providing their URI in the request parameters :
 
