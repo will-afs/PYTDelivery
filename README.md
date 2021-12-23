@@ -2,10 +2,7 @@ PYTDelivery
 ===========
 Source code of evaluation of "Python for data intensive applications" lecture at MS SIO, CentraleSupélec
 
-This project is a Flask application that :
-* provides an API to import a pdf from a URI
-* extract its metadata and content asynchronously
-* and make them available for consumption by the user
+This project is a Flask application that provides an API to populate a PDFs DB from ArXiv.org and make their related informations (URI, metadata and content) available for consumption.
 
 Installing the project on your machine
 --------------------------------------
@@ -45,11 +42,18 @@ Considering the Flask application is running and accessible through the followin
 
     http://127.0.0.1:5000/
     
-And given the PDF of which extracting metadata is accessible through the client working directory, as "PDF_FILE.pdf" ;
+The application database can be populated by batchs from the ArXiv.org API by running requests as follows :
 
-The service can be accessed by a client through HTTP requests as follows.
+    curl -X POST "http://127.0.0.1:5000/documents/batch_from_arxiv/?cat=cs.ai&start=0&max_results=20"
+    
+* **"cat" is the category to fetch PDFs into ArXiv.org API**. Here, it is set to cs.ai (Computer Science - Artificial Intelligence).
+It is only left for endpoint reutisability purposes : this endpoint does not accept any other category for now
+* **"start" is the start index for the ArXiv.org query of their database**. Here, it is set to 0, meaning it will start from the first PDF in base.
+To date (December 2021), there are about 41000 to 42000 PDFs stored in their database
+* **"max_results" is the maximal number of PDFs to fetch**. The ArXiv.org API user manual discourages to use a max_results value of more than 1000 PDFs.
+But here, the liberty is let to the user to fill any other value.
 
-Posting the PDF towards the service file system:
+PDFs can also be imported one by one into the application database by providing their URI in the request parameters :
 
     curl -X POST http://127.0.0.1:5000/documents/?file_uri=http://arxiv.org/pdf/cs/9308101v1
 
