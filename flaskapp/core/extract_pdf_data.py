@@ -46,6 +46,8 @@ def extract_data_from_pdf_uri(pdf_uri: str) -> List:
         }
     str: PDF content
     """
+    if pdf_uri=="http://arxiv.org/pdf/cs/9408102v1":
+        debug_marker=1
     file_obj = get_file_object_from_uri(pdf_uri)
     pdf_parser = PDFParser(file_obj)
     doc = PDFDocument(pdf_parser)
@@ -55,5 +57,8 @@ def extract_data_from_pdf_uri(pdf_uri: str) -> List:
         # Need to decode each value from bytestrings toward strings
         pdf_metadata[key] = value.decode("utf-8", errors="ignore")
     # 2. Extract PDF content
-    pdf_content = extract_text(file_obj)
+    try:
+        pdf_content = extract_text(file_obj)
+    except TypeError:
+        raise TypeError('Something went wrong in the PDF content extraction, due to a bug in pdfminer library')
     return pdf_metadata, pdf_content

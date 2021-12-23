@@ -16,8 +16,48 @@ NOT_FOUND_PDF_URI = config["PATHS"]["NOT_FOUND_PDF_URI"]
 NOT_PDF_URI = config["PATHS"]["NOT_PDF_URI"]
 PDF_URI = config["PATHS"]["PDF_URI"]
 
-# *********** extract_pdf_metadata_and_content_from_uri test cases ***********
+def populate_db_from_arxiv_api_success(client, app):
+    response = client.post(
+        "/documents/populate_db_from_arxiv_api/", query_string={"cat": 'cs.ai', "start":"0", "max_results":"2"}, follow_redirects=True
+    )
+    assert response.status == "200 OK"
+    response_data_as_json = json.loads(response.data.decode("utf-8").replace("\n", ""))
+    assert response_data_as_json["message"] == "Successfully retrieved, extracted, and stored in local DB 2 PDFs metadata and content. 0 were already in database"
+    
+    # Assert the PDFs have been added into the database
+    with app.app_context():
+        n_instances = get_db().execute(
+            "SELECT COUNT(*) FROM pdf"
+        )
+        assert n_instances == 2
+    
+    # But does not seem necessary to check the instances content in DB
 
+def populate_db_from_arxiv_api_cat_not_csai_fail(client, app):
+    response = client.post(
+        "/documents/populate_db_from_arxiv_api/", query_string={"cat": 'vdf', "start":"0", "max_results":"2"}, follow_redirects=True
+    )
+    assert response.status == "400 BAD REQUEST"
+    response_data_as_json = json.loads(response.data.decode("utf-8").replace("\n", ""))
+    assert response_data_as_json["message"] == "Expected 'cs.ai' value for argument 'cat'"
+    
+def populate_db_from_arxiv_api_wrong_arguments_value_fail(client, app):
+    response = client.post(
+        "/documents/populate_db_from_arxiv_api/", query_string={"cat": 'vdf', "start":"-9", "max_results":"-72"}, follow_redirects=True
+    )
+    assert response.status == "400 BAD REQUEST"
+    response_data_as_json = json.loads(response.data.decode("utf-8").replace("\n", ""))
+    assert response_data_as_json["message"] == "Could not access the provided URI. Maybe check the requests parameters?"
+
+def populate_db_from_arxiv_api_query_out_of_range_success(client, app):
+    response = client.post(
+        "/documents/populate_db_from_arxiv_api/", query_string={"cat": 'vdf', "start":"50000000", "max_results":"1000"}, follow_redirects=True
+    )
+    assert response.status == "200 OK"
+    response_data_as_json = json.loads(response.data.decode("utf-8").replace("\n", ""))
+    assert response_data_as_json["message"] == "No PDF to extract from ArXiv.org API for this set of arguments"
+
+# *********** extract_pdf_metadata_and_content_from_uri test cases ***********
 
 def test_extract_pdf_metadata_and_content_from_uri_success(client, app):
     response = client.post(
