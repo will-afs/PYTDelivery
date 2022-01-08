@@ -28,6 +28,10 @@ If you want to use venv, run this command to create a new hidden .venv virtual e
 Then, make sure to install the necessary Python dependencies in it by running :
     
     pip install -r requirements.txt
+    
+Update the installation of the project by running the following command :
+
+    pip install -e .
 
 Running the Back-End locally on your machine
 --------------------------------------------
