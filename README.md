@@ -21,6 +21,10 @@ If you are using Visual Studio Code as an IDE, you can find more info on both :
 * https://code.visualstudio.com/docs/python/environments
 * https://stackoverflow.com/questions/54106071/how-can-i-set-up-a-virtual-environment-for-python-in-visual-studio-code
 
+If you want to use venv, run this command to create a new hidden .venv virtual environment :
+
+    python3 -m venv .venv
+
 Then, make sure to install the necessary Python dependencies in it by running :
     
     pip install -r requirements.txt
