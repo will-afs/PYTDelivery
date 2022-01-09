@@ -10,6 +10,8 @@ In a terminal, run the following command :
 
     git clone https://github.com/will-afs/PYTDelivery.git
 
+Your working directory should be the PYTDelivery directory
+
 Make sure to use Python>= 3.7.
 You can check your Python version by running :
 
@@ -21,7 +23,7 @@ If you are using Visual Studio Code as an IDE, you can find more info on both :
 * https://code.visualstudio.com/docs/python/environments
 * https://stackoverflow.com/questions/54106071/how-can-i-set-up-a-virtual-environment-for-python-in-visual-studio-code
 
-If you want to use venv, run this command to create a new hidden .venv virtual environment :
+If you especially want to use venv, run this command to create a new hidden .venv virtual environment :
 
     python3 -m venv .venv
 
@@ -29,30 +31,37 @@ Then, make sure to install the necessary Python dependencies in it by running :
     
     pip install -r requirements.txt
     
-Update the installation of the project by running the following command :
+Update the installation of the project with setuptools by running the following command :
 
     pip install -e .
+    
+Running unit tests
+------------------
+The tests are defined in test_xxx.py files, placed in the tests folder.
+Once the project is installed with setuptools (see above), the tests can be launched from the root directory by running the following command :
+
+    pytest
+    
+For more documentation about running tests, please refer to the official documentation : https://docs.pytest.org/en/6.2.x/
 
 Running the Back-End locally on your machine
 --------------------------------------------
-You should work within the backend directory.
-
-To run the Back-End, you need to run the following command :
+To run the Back-End, you need to run the following commands :
 
     export FLASK_APP=flaskapp
     export FLASK_ENV=development
     flask init-db
     flask run
     
-Sending an HTTP request locally to the Back-End
------------------------------------------------
+Sending HTTP requests to the Back-End
+-------------------------------------
 Considering the Flask application is running and accessible through the following address :
 
     http://127.0.0.1:5000/
     
 The application database can be populated by batchs from the ArXiv.org API by running requests as follows :
 
-    curl -X POST "http://127.0.0.1:5000/documents/batch_from_arxiv/?cat=cs.ai&start=0&max_results=20"
+    curl -X POST "http://127.0.0.1:5000/documents/populate_db_from_arxiv_api/?cat=cs.ai&start=0&max_results=20"
     
 * **"cat" is the category to fetch PDFs into ArXiv.org API**. Here, it is set to cs.ai (Computer Science - Artificial Intelligence).
 It is only left for endpoint reutisability purposes : this endpoint does not accept any other category for now
@@ -79,13 +88,3 @@ Getting the PDF metadata :
 Getting the PDF content :
 
     curl http://127.0.0.1:5000/documents/<pdf_id>/content.txt/
-
-Running unit tests
-------------------
-The tests are defined in tests.py files.
-They can be launched from the root directory, by running the following command :
-
-    pytest
-    
-For more documentation about running tests, please refer to the official documentation : https://docs.pytest.org/en/6.2.x/
-
