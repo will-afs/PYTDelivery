@@ -4,42 +4,34 @@ import os
 import tempfile
 
 import pytest
-
+from flask import g
 from flaskapp import create_app
 from flaskapp.db.db import get_db, init_db
 
 with open(os.path.join(os.path.dirname(__file__), "data.sql"), "rb") as f:
     _data_sql = f.read().decode("utf8")
 
-
 @pytest.fixture
 def app():
+    os.environ['FLASK_ENV'] = 'test' # Equivalent to "export FLASK_ENV=test" in bash
+
     # tempfile.mkstemp() creates and opens a temporary file, returning the file descriptor
     # and the path to it. The DATABASE path is overridden so it points to this temporary
-    # path instead of the instance folder. After setting the path, the database tables are
-    # created and the test data is inserted. After the test is over, the temporary file is
-    # closed and removed.
+    # path instead of the instance folder. After setting the path, the database tables shall be
+    # created and the test data inserted.
     db_fd, db_path = tempfile.mkstemp()
 
-    # TESTING tells Flask that the app is in test mode. Flask changes some internal behavior
-    # so it’s easier to test, and other extensions can also use the flag to make testing
-    #  them easier.
-    app = create_app(
-        {
-            "TESTING": True,
-            "DATABASE": db_path,
-        }
-    )
-
+    app = create_app()
+    app.config.update(DATABASE = db_path)
     with app.app_context():
         init_db()
         get_db().executescript(_data_sql)
 
     yield app
-
+    
+    # After the test is over, the temporary db file must be closed and removed.
     os.close(db_fd)
-    os.unlink(db_path)
-
+    os.remove(db_path)
 
 @pytest.fixture
 def client(app):
