@@ -7,10 +7,11 @@ from flask.cli import with_appcontext
 
 import json
 
-
 def init_db():
+    # If db does not exist, create it. 
     db = get_db()
 
+    # TODO : the resource path should be set into the project config file
     with current_app.open_resource("db/schema.sql") as f:
         db.executescript(f.read().decode("utf8"))
 
