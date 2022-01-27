@@ -31,16 +31,12 @@ Then, make sure to install the necessary Python dependencies in it by running :
     
     pip install -r requirements.txt
     
-Update the installation of the project with setuptools by running the following command :
-
-    pip install -e .
-    
 Running unit tests
 ------------------
 The tests are defined in test_xxx.py files, placed in the tests folder.
 Once the project is installed with setuptools (see above), the tests can be launched from the root directory by running the following command :
 
-    pytest
+    python -m pytest tests
     
 For more documentation about running tests, please refer to the official documentation : https://docs.pytest.org/en/6.2.x/
 
